@@ -1,0 +1,14 @@
+<h2>Criar Conta Roblox P2P</h2>
+<input type="text" id="user" placeholder="Usuário">
+<input type="password" id="pass" placeholder="Senha">
+<button onclick="salvar()">Criar Conta</button>
+
+<script>
+function salvar() {
+    const u = document.getElementById("user").value;
+    const p = document.getElementById("pass").value;
+    localStorage.setItem("conta", JSON.stringify({usuario: u, senha: p}));
+    alert("Conta criada no navegador!");
+    window.location.href = "menu.html";
+}
+</script>
