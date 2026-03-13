@@ -2,44 +2,192 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Roblox P2P - Menu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Games - ROBLOX</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        body { background: #1a1a1a; color: white; font-family: sans-serif; text-align: center; margin: 0; padding: 20px; }
-        .grid { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 30px; }
-        .card { 
-            background: #333; border: 2px solid #444; border-radius: 10px; 
-            width: 200px; padding: 15px; cursor: pointer; transition: 0.3s;
+        :root {
+            --bg-dark: #191B1D;
+            --bg-card: #252729;
+            --header-dark: #232527;
+            --rbx-blue: #0074BD;
+            --rbx-green: #00B06F;
+            --nexx-gold: #FFD700; /* Cor da moeda Nexx */
+            --text-main: #FFFFFF;
+            --text-sub: #ADB5BD;
         }
-        .card:hover { border-color: #26ba40; transform: scale(1.05); }
-        .thumb { width: 100%; height: 120px; background: #555; border-radius: 5px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; }
+
+        * { box-sizing: border-box; outline: none; }
+
+        body { 
+            background-color: var(--bg-dark); 
+            color: var(--text-main);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Header com Nexx e Studio */
+        .rbx-header {
+            background-color: var(--header-dark);
+            height: 55px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            border-bottom: 1px solid #393b3d;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            margin-right: 15px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-sub);
+            transition: 0.2s;
+        }
+
+        .nav-item:hover, .active { color: white; }
+
+        .nexx-counter {
+            margin-left: auto;
+            background: rgba(0,0,0,0.3);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--nexx-gold);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 15px; }
+
+        /* Estilo do Studio */
+        #studio-section { display: none; text-align: center; margin-top: 50px; }
+        .studio-box {
+            background: var(--bg-card);
+            border: 2px dashed #444;
+            padding: 40px;
+            border-radius: 10px;
+        }
+        .btn-create {
+            background: var(--rbx-blue);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        /* Grid de Jogos */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .game-card {
+            background: var(--bg-card);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: 0.2s;
+        }
+
+        .game-card:hover { border-color: var(--rbx-blue); transform: translateY(-3px); }
+
+        .thumb { width: 100%; aspect-ratio: 16/9; object-fit: cover; background: #111; }
+
+        .info { padding: 8px; }
+        .name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .status { font-size: 11px; color: var(--text-sub); margin-top: 4px; }
+
+        @media (max-width: 600px) {
+            .nav-item { font-size: 12px; margin-right: 8px; }
+            .games-grid { grid-template-columns: repeat(2, 1fr); }
+        }
     </style>
 </head>
 <body>
-    <h1>Selecione um Mapa</h1>
-    <p>Logado como: <span id="user-display" style="color: #26ba40;">...</span></p>
 
-    <div class="grid">
-        <div class="card" onclick="entrarNoJogo('Parkour Obby', 'jogo1.html')">
-            <div class="thumb">OBBY</div>
-            <h3>Parkour Obby</h3>
-            <p style="font-size: 12px; color: #aaa;">Status: Online</p>
+    <header class="rbx-header">
+        <div class="nav-item active" onclick="showTab('games')">GAMES</div>
+        <div class="nav-item" onclick="showTab('studio')">STUDIO</div>
+        
+        <div class="nexx-counter">
+            <span style="background: var(--nexx-gold); color: black; border-radius: 50%; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px;">N</span>
+            <span id="nexx-amount">1,250</span>
+        </div>
+    </header>
+
+    <div class="container" id="games-section">
+        <h2 style="font-size: 20px;">Populares</h2>
+        <div class="games-grid" id="grid"></div>
+    </div>
+
+    <div class="container" id="studio-section">
+        <div class="studio-box">
+            <h2 style="margin-top:0">Nexx Studio</h2>
+            <p style="color: var(--text-sub)">Crie suas próprias experiências e ganhe Nexx!</p>
+            <button class="btn-create" onclick="abrirStudio()">Criar Novo Mapa</button>
         </div>
     </div>
 
     <script>
-        const meuUser = localStorage.getItem('meu_user') || "Anônimo";
-        document.getElementById('user-display').innerText = meuUser;
-
+        const user = localStorage.getItem('meu_user') || "Player";
         const peer = new Peer();
-        const ID_DO_SERVIDOR = "MEU_ROBLOX_HOST_PRIVADO_2026";
+        const ID_SERVIDOR = "MEU_ROBLOX_HOST_PRIVADO_2026";
 
-        function entrarNoJogo(nomeMapa, arquivo) {
-            const conn = peer.connect(ID_DO_SERVIDOR);
+        // Gerenciar Abas
+        function showTab(tab) {
+            if(tab === 'games') {
+                document.getElementById('games-section').style.display = 'block';
+                document.getElementById('studio-section').style.display = 'none';
+            } else {
+                document.getElementById('games-section').style.display = 'none';
+                document.getElementById('studio-section').style.display = 'block';
+            }
+        }
+
+        // Simulação de Moeda Nexx
+        let saldoNexx = Math.floor(Math.random() * 5000);
+        document.getElementById('nexx-amount').innerText = saldoNexx.toLocaleString();
+
+        // Gerar Jogos
+        const jogos = ["Brookhaven", "Blox Fruits", "Adopt Me!", "Doors", "Jailbreak", "MM2", "MeepCity", "Piggy", "Arsenal", "BedWars", "Livetopia", "Evade"];
+        const grid = document.getElementById('grid');
+
+        jogos.forEach((nome, i) => {
+            const card = document.createElement('div');
+            card.className = 'game-card';
+            card.onclick = () => enviarAcao("JOGO", nome);
+            card.innerHTML = `
+                <img src="https://picsum.photos/seed/${i+10}/300/170" class="thumb">
+                <div class="info">
+                    <div class="name">${nome}</div>
+                    <div class="status">🟢 ${(Math.random()*10).toFixed(1)}K Online</div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+        function abrirStudio() {
+            alert("Abrindo Nexx Studio...");
+            enviarAcao("STUDIO", "Abriu o Editor de Mapas");
+        }
+
+        function enviarAcao(tipo, detalhe) {
+            const conn = peer.connect(ID_SERVIDOR);
             conn.on('open', () => {
-                // Avisa o host que o jogador trocou de tela
-                conn.send({ tipo: "MAPA", usuario: meuUser, mapa: nomeMapa });
-                setTimeout(() => { window.location.href = arquivo; }, 500);
+                conn.send({ tipo: tipo, user: user, detalhe: detalhe, saldo: saldoNexx });
             });
         }
     </script>
