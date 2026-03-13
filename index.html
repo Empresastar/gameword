@@ -1,144 +1,38 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roblox P2P - Iniciando</title>
-    
+    <title>Roblox P2P - Loading</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-
     <style>
-        /* O SEU CSS ORIGINAL COM AJUSTES */
-        html {
-            font-family: Gill Sans, Gill Sans MT, Calibri, sans-serif;
-            text-align: center;
-            background-color: #1a1a1a; /* Fundo escuro para parecer PRO */
-            color: white;
-        }
-
-        .loadershape {
-            background: red;
-            height: 100px;
-            width: 100px;
-            animation: spin 2s infinite linear;
-            position: relative;
-            margin: 50px auto;
-        }
-
-        .hole {
-            position: absolute;
-            background: #1a1a1a; /* Cor do fundo */
-            height: 30px;
-            width: 30px;
-            top: 35px;
-            left: 35px;
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .progress {
-            height: 30px;
-            width: 80%;
-            margin: 0 auto;
-            border: 1px solid #555;
-            background: #333;
-            overflow: hidden;
-        }
-
-        .progressPercentage {
-            background: #26ba40;
-            height: 30px;
-            width: 0%; /* Começa em 0 */
-            transition: width 0.5s;
-        }
-
-        /* Console de Logs Estilo Servidor */
-        #console-logs {
-            font-family: monospace;
-            font-size: 12px;
-            color: #0f0;
-            background: #000;
-            width: 80%;
-            margin: 20px auto;
-            padding: 10px;
-            text-align: left;
-            height: 100px;
-            overflow-y: auto;
-            border: 1px solid #333;
-        }
+        body { background: #000; color: white; text-align: center; font-family: sans-serif; padding-top: 100px; }
+        .loadershape { background: red; height: 80px; width: 80px; animation: spin 2s infinite linear; margin: 0 auto; position: relative; }
+        .hole { position: absolute; background: #000; height: 25px; width: 25px; top: 27px; left: 27px; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .progress { width: 250px; height: 10px; background: #333; margin: 20px auto; border-radius: 5px; overflow: hidden; }
+        .bar { height: 100%; width: 0%; background: #26ba40; transition: 0.3s; }
     </style>
 </head>
 <body>
-
-    <center>
-        <div class="loader">
-            <div class="loadershape">
-                <div class="hole"></div>
-            </div>
-        </div>
-    </center>
-
-    <p id="p">A iniciar o núcleo P2P...</p>
-
-    <div class="progress">
-        <div id="bar" class="progressPercentage"></div>
-    </div>
-
-    <div id="console-logs">
-        [SISTEMA]: Inicializando logs...<br>
-    </div>
+    <div class="loadershape"><div class="hole"></div></div>
+    <p id="t">Conectando ao sistema...</p>
+    <div class="progress"><div id="bar" class="bar"></div></div>
 
     <script>
-        const statusText = document.getElementById("p");
-        const progressBar = document.getElementById("bar");
-        const logBox = document.getElementById("console-logs");
-
-        function addLog(msg) {
-            logBox.innerHTML += `> ${msg}<br>`;
-            logBox.scrollTop = logBox.scrollHeight;
-        }
-
-        // --- LÓGICA P2P ---
-        // Aqui o navegador cria uma "ID de Servidor" única para você
-        const peer = new Peer(); 
-
-        peer.on('open', (id) => {
-            addLog("Conectado à rede P2P global.");
-            addLog("A sua ID de Peer é: " + id);
-            statusText.innerHTML = "Rede P2P Pronta!";
-            iniciarCarregamento();
-        });
-
-        peer.on('error', (err) => {
-            addLog("ERRO DE REDE: " + err.type);
-        });
-
-        // --- BARRA DE PROGRESSO ---
-        let progresso = 0;
-        function iniciarCarregamento() {
-            const timer = setInterval(() => {
-                progresso += Math.random() * 15;
-                if (progresso > 100) progresso = 100;
-                
-                progressBar.style.width = progresso + "%";
-
-                if (progresso >= 30) addLog("A carregar módulos do motor...");
-                if (progresso >= 60) addLog("A sincronizar base de dados local...");
-                if (progresso >= 90) addLog("Finalizando...");
-
-                if (progresso === 100) {
-                    clearInterval(timer);
-                    statusText.innerHTML = "Tudo pronto!";
-                    setTimeout(() => {
-                        // REDIRECIONA PARA O MENU (Em vez do roblox.com)
-                        window.location.href = "cadastro.html"; 
-                    }, 2000);
+        const bar = document.getElementById('bar');
+        const peer = new Peer(); // Inicia o P2P do jogador
+        
+        peer.on('open', () => {
+            let p = 0;
+            const it = setInterval(() => {
+                p += 5;
+                bar.style.width = p + "%";
+                if(p >= 100) {
+                    clearInterval(it);
+                    window.location.href = "cadastro.html";
                 }
-            }, 800);
-        }
+            }, 100);
+        });
     </script>
 </body>
 </html>
