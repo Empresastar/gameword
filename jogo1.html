@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Parkour Obby - Em Jogo</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <style>
+        body { background: #000; color: white; text-align: center; font-family: sans-serif; }
+        #game-canvas { border: 5px solid #222; background: #111; margin-top: 20px; }
+        .btn-voltar { margin-top: 20px; padding: 10px; cursor: pointer; background: red; color: white; border: none; }
+    </style>
+</head>
+<body>
+    <h1>OBBY PARKOUR</h1>
+    <canvas id="game-canvas" width="600" height="300"></canvas>
+    <br>
+    <button class="btn-voltar" onclick="window.location.href='menu.html'">Sair do Jogo</button>
+
+    <script>
+        const peer = new Peer();
+        const ID_DO_SERVIDOR = "MEU_ROBLOX_HOST_PRIVADO_2026";
+        const user = localStorage.getItem('meu_user');
+
+        peer.on('open', () => {
+            const conn = peer.connect(ID_DO_SERVIDOR);
+            conn.on('open', () => {
+                conn.send({ tipo: "STATUS", usuario: user, msg: "Jogando agora..." });
+            });
+        });
+
+        // Simulação simples de gráfico
+        const ctx = document.getElementById('game-canvas').getContext('2d');
+        ctx.fillStyle = "#26ba40";
+        ctx.fillRect(50, 200, 50, 50); // Jogador
+        ctx.fillStyle = "red";
+        ctx.fillRect(200, 220, 100, 20); // Obstáculo
+    </script>
+</body>
+</html>
